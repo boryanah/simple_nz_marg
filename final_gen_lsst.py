@@ -218,14 +218,14 @@ for i1, i2, ti1, ti2, ii, idtype in tracer_iterator():
 
         # Cov_ab,cd = (C_ell^ac*C_ell'^bd + C_ell^ad*C_ell'^bc)/(2ell+1) Delta ell fsky delta_ellell'
         cov_this = np.diag((cli1j1*cli2j2 + cli1j2*cli2j1)/nmodes)
-        cov[iix][:, jix] = cov_this
+        cov[np.ix_(iix, jix)] = cov_this
 
         # generate trispectrum
         tkk = ccl.halos.halo_model.halomod_Tk3D_SSC_linear_bias(cosmo, hmc, prof, bias1=bias_dict[ti1], bias2=bias_dict[ti2], bias3=bias_dict[tj1],  bias4=bias_dict[tj2], is_number_counts1=check_nr_cts(ti1), is_number_counts2=check_nr_cts(ti2), is_number_counts3=check_nr_cts(tj1), is_number_counts4=check_nr_cts(tj2))
 
         # get supersample covariance given tkk
         cov_ssc = ccl.covariances.angular_cl_cov_SSC(cosmo, ccl_ts[ti1], ccl_ts[ti2], l, tkka=tkk, fsky=fsky, cltracer3=ccl_ts[tj1], cltracer4=ccl_ts[tj2])
-        cov_extra[iix][:, jix] = cov_ssc
+        cov_extra[np.ix_(iix, jix)] = cov_ssc
 
         sum += 1
 
