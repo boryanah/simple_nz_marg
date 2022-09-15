@@ -65,13 +65,7 @@ s.remove_selection(data_type='cl_eb')
 s.remove_selection(data_type='cl_be')
 s.remove_selection(data_type='cl_bb')
 s.remove_selection(data_type='cl_0b')
-for i in range(2):
-    s.remove_selection(data_type='cl_00', tracers=(f'eBOSS__{i}', 'PLAcv'))
-    s.remove_selection(data_type='cl_00', tracers=(f'eBOSS__{i}', f'eBOSS__{i}'))
-for i in range(4):
-    s.remove_selection(data_type='cl_0e', tracers=(f'DESwl__{i}', 'PLAcv'))
-for i in range(5):
-    s.remove_selection(data_type='cl_00', tracers=(f'DESgc__{i}', 'PLAcv'))
+s.remove_tracers(['eBOSS__0', 'eBOSS__1', 'PLAcv'])
 
 # Generate cobaya model (note that we remove all scale cuts by hand)
 def get_cobaya_model(config_fn, include_all_scales=True):
@@ -131,7 +125,7 @@ for t, q in zip(ts, qs):
         bias_dict[t] = 0. # 0 for weak lensing
     snew.add_tracer('NZ', t, quantity=q, spin=0 if q == 'galaxy_density' else 2,
                     z=s.tracers[t].z, nz=s.tracers[t].nz)
-    
+
     if q == 'galaxy_density':
         nz = (s.tracers[t].z, s.tracers[t].nz)
         bz = (s.tracers[t].z, np.ones_like(s.tracers[t].z)) # set to 1 since we change later
@@ -149,7 +143,7 @@ def get_dtype(t1, t2):
     if dtype == 'cl_e0':
         dtype = 'cl_0e'
     return dtype
-        
+
 def tracer_iterator():
     i_d = 0
     for i1 in range(nt):
@@ -202,41 +196,43 @@ def check_nr_cts(tr):
     # silly function for deciding whether tracer is number counts or not
     is_number_counts = True if 'gc' in tr else False
     return is_number_counts
-                
+
 fsky = 0.4
 ncl = (nt*(nt+1)) // 2 - 5*(5-1)//2 # getting rid of the cross gc correlations
-cov = np.zeros([ncl, nl, ncl, nl])
-cov_extra = np.zeros([ncl, nl, ncl, nl])
+cov = np.zeros([ncl*nl, ncl*nl])
+cov_extra = np.zeros([ncl*nl, ncl*nl])
 nmodes = fsky*(2*l+1)*dell
 sum = 0
-for i1, i2, ti1, ti2, ii, dtype in tracer_iterator():
-    for j1, j2, tj1, tj2, jj, dtype in tracer_iterator():
+for i1, i2, ti1, ti2, ii, idtype in tracer_iterator():
+    for j1, j2, tj1, tj2, jj, jdtype in tracer_iterator():
         print("all tracers = ", ti1, ti2, tj1, tj2, sum)
+
+        iix = snew.indices(data_type=idtype, tracers=(ti1, ti2))
+        jix = snew.indices(data_type=jdtype, tracers=(tj1, tj2))
 
         # get all necessary cl's
         cli1j1 = get_cl(ti1, tj1)
         cli1j2 = get_cl(ti1, tj2)
         cli2j1 = get_cl(ti2, tj1)
         cli2j2 = get_cl(ti2, tj2)
-        
+
         # Cov_ab,cd = (C_ell^ac*C_ell'^bd + C_ell^ad*C_ell'^bc)/(2ell+1) Delta ell fsky delta_ellell'
         cov_this = np.diag((cli1j1*cli2j2 + cli1j2*cli2j1)/nmodes)
-        cov[ii, :, jj, :] = cov_this
+        cov[iix][:, jix] = cov_this
 
         # generate trispectrum
         tkk = ccl.halos.halo_model.halomod_Tk3D_SSC_linear_bias(cosmo, hmc, prof, bias1=bias_dict[ti1], bias2=bias_dict[ti2], bias3=bias_dict[tj1],  bias4=bias_dict[tj2], is_number_counts1=check_nr_cts(ti1), is_number_counts2=check_nr_cts(ti2), is_number_counts3=check_nr_cts(tj1), is_number_counts4=check_nr_cts(tj2))
 
         # get supersample covariance given tkk
         cov_ssc = ccl.covariances.angular_cl_cov_SSC(cosmo, ccl_ts[ti1], ccl_ts[ti2], l, tkka=tkk, fsky=fsky, cltracer3=ccl_ts[tj1], cltracer4=ccl_ts[tj2])
-        cov_extra[ii, :, jj, :] = cov_ssc
-        
+        cov_extra[iix][:, jix] = cov_ssc
+
         sum += 1
 
 # combine covariances and reshape
 np.save(f"data/lsst_cov_extra.npy", cov_extra)
 np.save(f"data/lsst_cov_G.npy", cov)
 cov += cov_extra
-cov = cov.reshape([ncl*nl, ncl*nl])
 
 # save the covariance matrix without marginalization
 snew.add_covariance(cov)
@@ -286,11 +282,11 @@ for par in p0.keys(): # p0 is fiducial cosmology
         p_p[par] = p0[par] + h
         p_m[par] = p0[par] - h
         print("bf p m ", p0[par], p_p[par], p_m[par])
-        
+
         d_p = get_data_vector(p_p)
         d_m = get_data_vector(p_m)
         print("d_p-d_m", np.sum(d_p-d_m))
-        
+
         t[:, sum] = (d_p - d_m)/(2.*h)
         P[sum] = s0[par]**2
         sum += 1
