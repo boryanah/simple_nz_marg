@@ -1,4 +1,5 @@
 import sys
+import os
 
 import numpy as np
 import sacc
@@ -8,6 +9,16 @@ import yaml
 
 # what fraction of error on dz's to use for derivatives
 delta_z_frac = np.float(sys.argv[1])
+
+# change factor by which sigma dz's are multiplied
+factor = int(sys.argv[2]) # 1, 2, 4
+if factor == 4:
+    factor_str = "_quad"
+elif factor == 2:
+    factor_str = "_dbl"
+elif factor == 1:
+    factor_str = ""
+print(factor_str)
 
 # const
 srad_to_arcmin2 = 11818080
@@ -197,42 +208,54 @@ def check_nr_cts(tr):
     is_number_counts = True if 'gc' in tr else False
     return is_number_counts
 
-fsky = 0.4
-ncl = (nt*(nt+1)) // 2 - 5*(5-1)//2 # getting rid of the cross gc correlations
-cov = np.zeros([ncl*nl, ncl*nl])
-cov_extra = np.zeros([ncl*nl, ncl*nl])
-nmodes = fsky*(2*l+1)*dell
-sum = 0
-for i1, i2, ti1, ti2, ii, idtype in tracer_iterator():
-    for j1, j2, tj1, tj2, jj, jdtype in tracer_iterator():
-        print("all tracers = ", ti1, ti2, tj1, tj2, sum)
 
-        iix = snew.indices(data_type=idtype, tracers=(ti1, ti2))
-        jix = snew.indices(data_type=jdtype, tracers=(tj1, tj2))
+# if you have already saved the covariances, skip that step
+cov_extra_fn = f"data/lsst_cov_extra.npy"
+cov_G_fn = f"data/lsst_cov_G.npy"
 
-        # get all necessary cl's
-        cli1j1 = get_cl(ti1, tj1)
-        cli1j2 = get_cl(ti1, tj2)
-        cli2j1 = get_cl(ti2, tj1)
-        cli2j2 = get_cl(ti2, tj2)
+if os.path.exists(cov_extra_fn) and os.path.exists(cov_G_fn):
+    # combine covariances and reshape
+    cov_extra = np.load(cov_extra_fn)
+    cov = np.load(cov_G_fn)
+    cov += cov_extra
 
-        # Cov_ab,cd = (C_ell^ac*C_ell'^bd + C_ell^ad*C_ell'^bc)/(2ell+1) Delta ell fsky delta_ellell'
-        cov_this = np.diag((cli1j1*cli2j2 + cli1j2*cli2j1)/nmodes)
-        cov[np.ix_(iix, jix)] = cov_this
+else:    
+    fsky = 0.4
+    ncl = (nt*(nt+1)) // 2 - 5*(5-1)//2 # getting rid of the cross gc correlations
+    cov = np.zeros([ncl*nl, ncl*nl])
+    cov_extra = np.zeros([ncl*nl, ncl*nl])
+    nmodes = fsky*(2*l+1)*dell
+    sum = 0
+    for i1, i2, ti1, ti2, ii, idtype in tracer_iterator():
+        for j1, j2, tj1, tj2, jj, jdtype in tracer_iterator():
+            print("all tracers = ", ti1, ti2, tj1, tj2, sum)
 
-        # generate trispectrum
-        tkk = ccl.halos.halo_model.halomod_Tk3D_SSC_linear_bias(cosmo, hmc, prof, bias1=bias_dict[ti1], bias2=bias_dict[ti2], bias3=bias_dict[tj1],  bias4=bias_dict[tj2], is_number_counts1=check_nr_cts(ti1), is_number_counts2=check_nr_cts(ti2), is_number_counts3=check_nr_cts(tj1), is_number_counts4=check_nr_cts(tj2))
+            iix = snew.indices(data_type=idtype, tracers=(ti1, ti2))
+            jix = snew.indices(data_type=jdtype, tracers=(tj1, tj2))
 
-        # get supersample covariance given tkk
-        cov_ssc = ccl.covariances.angular_cl_cov_SSC(cosmo, ccl_ts[ti1], ccl_ts[ti2], l, tkka=tkk, fsky=fsky, cltracer3=ccl_ts[tj1], cltracer4=ccl_ts[tj2])
-        cov_extra[np.ix_(iix, jix)] = cov_ssc
+            # get all necessary cl's
+            cli1j1 = get_cl(ti1, tj1)
+            cli1j2 = get_cl(ti1, tj2)
+            cli2j1 = get_cl(ti2, tj1)
+            cli2j2 = get_cl(ti2, tj2)
 
-        sum += 1
+            # Cov_ab,cd = (C_ell^ac*C_ell'^bd + C_ell^ad*C_ell'^bc)/(2ell+1) Delta ell fsky delta_ellell'
+            cov_this = np.diag((cli1j1*cli2j2 + cli1j2*cli2j1)/nmodes)
+            cov[np.ix_(iix, jix)] = cov_this
 
-# combine covariances and reshape
-np.save(f"data/lsst_cov_extra.npy", cov_extra)
-np.save(f"data/lsst_cov_G.npy", cov)
-cov += cov_extra
+            # generate trispectrum
+            tkk = ccl.halos.halo_model.halomod_Tk3D_SSC_linear_bias(cosmo, hmc, prof, bias1=bias_dict[ti1], bias2=bias_dict[ti2], bias3=bias_dict[tj1],  bias4=bias_dict[tj2], is_number_counts1=check_nr_cts(ti1), is_number_counts2=check_nr_cts(ti2), is_number_counts3=check_nr_cts(tj1), is_number_counts4=check_nr_cts(tj2))
+
+            # get supersample covariance given tkk
+            cov_ssc = ccl.covariances.angular_cl_cov_SSC(cosmo, ccl_ts[ti1], ccl_ts[ti2], l, tkka=tkk, fsky=fsky, cltracer3=ccl_ts[tj1], cltracer4=ccl_ts[tj2])
+            cov_extra[np.ix_(iix, jix)] = cov_ssc
+
+            sum += 1
+
+    # combine covariances and reshape
+    np.save(cov_extra_fn, cov_extra)
+    np.save(cov_G_fn, cov)
+    cov += cov_extra
 
 # save the covariance matrix without marginalization
 snew.add_covariance(cov)
@@ -266,7 +289,6 @@ def get_data_vector(params):
         data[ind] = cl
     return data
 
-
 # compute derivatives
 t = np.zeros((snew.mean.shape[0], nt)) # derivative matrix
 P = np.zeros(nt) # in this case, covariance between dz's
@@ -288,7 +310,7 @@ for par in p0.keys(): # p0 is fiducial cosmology
         print("d_p-d_m", np.sum(d_p-d_m))
 
         t[:, sum] = (d_p - d_m)/(2.*h)
-        P[sum] = s0[par]**2
+        P[sum] = s0[par]**2*factor**2
         sum += 1
 P = np.diag(P)
 
@@ -300,6 +322,6 @@ snew.add_covariance(cov)
 
 # save updated sacc object
 np.save(f"data/lsst_t_derfrac{delta_z_frac:.2f}.npy", t)
-np.save(f"data/lsst_cov_extra_derfrac{delta_z_frac:.2f}.npy", cov_extra)
-fn = f'data/cls_covG_lsst_derfrac{delta_z_frac:.2f}.fits'
+np.save(f"data/lsst_cov_extra_derfrac{delta_z_frac:.2f}{factor_str}.npy", cov_extra)
+fn = f'data/cls_covG_lsst_derfrac{delta_z_frac:.2f}{factor_str}.fits'
 snew.save_fits(fn, overwrite=True)
