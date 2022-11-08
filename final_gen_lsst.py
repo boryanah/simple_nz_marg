@@ -1,3 +1,7 @@
+"""
+This is for futuristic LSST with almost no noise and same bins as DES (can modulate N(z) uncertainties)
+First generates fake data with Gaussian + SSC covariance; 
+"""
 import sys
 import os
 
