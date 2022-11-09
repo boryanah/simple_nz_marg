@@ -243,19 +243,73 @@ params:
       scale: 0.0001
     latex: b^{DESgc}_4
     proposal: 0.0000001
-  clk_DESgc__0_dz: 0.0
-  clk_DESgc__1_dz: 0.0
-  clk_DESgc__2_dz: 0.0
-  clk_DESgc__3_dz: 0.0
-  clk_DESgc__4_dz: 0.0
+  clk_DESgc__0_dz:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 0.028
+    latex: \Delta z^{DESgc}_0
+    proposal: 0.0000001
+  clk_DESgc__1_dz:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 0.028
+    latex: \Delta z^{DESgc}_1
+    proposal: 0.0000001
+  clk_DESgc__2_dz:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 0.024
+    latex: \Delta z^{DESgc}_2
+    proposal: 0.0000001
+  clk_DESgc__3_dz:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 0.04
+    latex: \Delta z^{DESgc}_3
+    proposal: 0.0000001
+  clk_DESgc__4_dz:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 0.04
+    latex: \Delta z^{DESgc}_4
+    proposal: 0.0000001
   clk_DESwl__0_m: 0.012
   clk_DESwl__1_m: 0.012
   clk_DESwl__2_m: 0.012
   clk_DESwl__3_m: 0.012
-  clk_DESwl__0_dz: -0.001
-  clk_DESwl__1_dz: -0.019
-  clk_DESwl__2_dz: 0.009
-  clk_DESwl__3_dz: -0.018
+  clk_DESwl__0_dz:
+    prior:
+      dist: norm
+      loc: -0.001
+      scale: 0.064
+    latex: \Delta z^{DESwl}_0
+    proposal: 0.0000001
+  clk_DESwl__1_dz:
+    prior:
+      dist: norm
+      loc: -0.019
+      scale: 0.052
+    latex: \Delta z^{DESwl}_1
+    proposal: 0.0000001
+  clk_DESwl__2_dz:
+    prior:
+      dist: norm
+      loc: 0.009
+      scale: 0.044
+    latex: \Delta z^{DESwl}_2
+    proposal: 0.0000001
+  clk_DESwl__3_dz:
+    prior:
+      dist: norm
+      loc: -0.018
+      scale: 0.088
+    latex: \Delta z^{DESwl}_3
+    proposal: 0.0000001
   clk_A_IA: 0.0
   clk_eta_IA: 0.0
 
@@ -268,5 +322,5 @@ sampler:
     measure_speeds: True
     oversample_power: 1
     drag: True
-    covmat: chains/lsst_3x2pt_dz.covmat
-output: chains/lsst_3x2pt_fixdz
+    covmat: chains/lsst_3x2pt_dz_new.covmat
+output: chains/lsst_3x2pt_dz_quad

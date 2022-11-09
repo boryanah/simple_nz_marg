@@ -5,7 +5,7 @@ theory:
     baryons_pk: nobaryons
 likelihood:
   cl_like.ClLike:
-    input_file: /users/boryanah/repos/xCell-likelihoods/simple_marginalization/data/cls_covG_lsst.fits
+    input_file: /users/boryanah/repos/xCell-likelihoods/simple_marginalization/data/cls_covG_lsst_derfrac0.01_quad.fits
     bins:
     - name: DESgc__0
     - name: DESgc__1
@@ -268,5 +268,5 @@ sampler:
     measure_speeds: True
     oversample_power: 1
     drag: True
-    covmat: chains/lsst_3x2pt_dz.covmat
-output: chains/lsst_3x2pt_fixdz
+    covmat: chains/lsst_3x2pt_margdz_quad.covmat
+output: chains/lsst_3x2pt_margdz_quad_new
