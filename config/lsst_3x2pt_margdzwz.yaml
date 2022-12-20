@@ -136,7 +136,7 @@ likelihood:
         lmin: 30
     input_params_prefix: clk
     ia_model: IADESY1
-    nz_model: NzShift
+    nz_model: NzShiftWidth
     shape_model: ShapeMultiplicative
     bias_model: Linear
 params:

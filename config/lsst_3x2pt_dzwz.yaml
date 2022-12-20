@@ -6,7 +6,7 @@ theory:
 likelihood:
   cl_like.ClLike:
     input_file: /users/boryanah/repos/xCell-likelihoods/simple_marginalization/data/cls_covG_lsst.fits
-    bins:
+        bins:
     - name: DESgc__0
     - name: DESgc__1
     - name: DESgc__2
@@ -136,7 +136,7 @@ likelihood:
         lmin: 30
     input_params_prefix: clk
     ia_model: IADESY1
-    nz_model: NzShift
+    nz_model: NzShiftWidth # could this be a bug? (missing from dzwz)
     shape_model: ShapeMultiplicative
     bias_model: Linear
 params:

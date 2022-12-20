@@ -136,7 +136,7 @@ likelihood:
         lmin: 30
     input_params_prefix: clk
     ia_model: IADESY1
-    nz_model: NzShift
+    nz_model: NzShiftWidth # could this be a bug
     shape_model: ShapeMultiplicative
     bias_model: Linear
 params:
@@ -398,5 +398,5 @@ sampler:
     measure_speeds: True
     oversample_power: 1
     drag: True
-    covmat: chains/desgc_deswl_dz_s8zpaper.covmat
-output: chains/desgc_deswl_dzwz_s8zpaper
+    covmat: chains/desgc_deswl_dzwz_s8zpaper.covmat
+output: chains/desgc_deswl_dzwz_s8zpaper_new
