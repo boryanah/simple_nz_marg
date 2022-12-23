@@ -5,7 +5,7 @@ theory:
     transfer_function: eisenstein_hu
 likelihood:
   cl_like.ClLike:
-    input_file: /users/boryanah/repos/xCell-likelihoods/simple_marginalization/data/cls_LSST_linear.fits
+    input_file: /users/boryanah/repos/xCell-likelihoods/simple_marginalization/data/cls_LSST_linear_marg_derfrac0.01_dzwz.fits
     bins:
     - name: cl_0
     - name: cl_1
@@ -350,178 +350,24 @@ params:
       dist: norm
       loc: 1.5
       scale: 0.01
-  clk_cl_0_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.007
-    proposal: 0.0007
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.007
-  clk_cl_1_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.007
-    proposal: 0.0007
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.007
-  clk_cl_2_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.006
-    proposal: 0.0006
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.006
-  clk_cl_3_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.01
-    proposal: 0.001
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.01
-  clk_cl_4_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.01
-    proposal: 0.001
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.01
-  clk_cl_5_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.01
-    proposal: 0.001
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.01
-  clk_cl_0_wz:
-    prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-    proposal: 0.008
-    ref:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-  clk_cl_1_wz:
-    prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-    proposal: 0.008
-    ref:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-  clk_cl_2_wz:
-    prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-    proposal: 0.008
-    ref:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-  clk_cl_3_wz:
-    prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-    proposal: 0.008
-    ref:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-  clk_cl_4_wz:
-    prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-    proposal: 0.008
-    ref:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-  clk_cl_5_wz:
-    prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-    proposal: 0.008
-    ref:
-      dist: norm
-      loc: 1.0
-      scale: 0.08
-  clk_sh_0_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.016
-    proposal: 0.0016
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.016
-  clk_sh_1_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.013
-    proposal: 0.0013
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.013
-  clk_sh_2_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.011
-    proposal: 0.0011
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.011
-  clk_sh_3_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.022
-    proposal: 0.0022
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.022
-  clk_sh_4_dz:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.022
-    proposal: 0.0022
-    ref:
-      dist: norm
-      loc: 0.0
-      scale: 0.022
-      # vary i_ias tuks
   S8:
+  clk_cl_0_dz: 0.0
+  clk_cl_1_dz: 0.0
+  clk_cl_2_dz: 0.0
+  clk_cl_3_dz: 0.0
+  clk_cl_4_dz: 0.0
+  clk_cl_5_dz: 0.0
+  clk_cl_0_wz: 1.0
+  clk_cl_1_wz: 1.0
+  clk_cl_2_wz: 1.0
+  clk_cl_3_wz: 1.0
+  clk_cl_4_wz: 1.0
+  clk_cl_5_wz: 1.0
+  clk_sh_0_dz: 0.0
+  clk_sh_1_dz: 0.0
+  clk_sh_2_dz: 0.0
+  clk_sh_3_dz: 0.0
+  clk_sh_4_dz: 0.0
 sampler:
   #minimize: 
   mcmc:
@@ -531,4 +377,4 @@ sampler:
     Rminus1_stop: 0.01
     measure_speeds: true
 debug: false
-output: chains/lsst_3x2pt_dzwz_david
+output: chains/lsst_3x2pt_margdzwz_david_new
